@@ -5,3 +5,8 @@ spring:
 logging:
   level:
     root: info
+
+app:
+  jwt:
+    secret: 'mySuperSecretKeyThatIsAtLeast256BitsLongForHS256Algorithm'
+    expiration-ms: 86400000
