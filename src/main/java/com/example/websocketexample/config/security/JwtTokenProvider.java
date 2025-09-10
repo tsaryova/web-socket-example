@@ -5,6 +5,7 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
@@ -14,23 +15,14 @@ import java.util.Date;
 
 @Component
 public class JwtTokenProvider {
+
+    @Getter
     @Value("${app.jwt.secret:mySuperSecretKeyThatIsAtLeast256BitsLongForHS256Algorithm}")
     private String jwtSecret;
 
+    @Getter
     @Value("${app.jwt.expiration-ms:86400000}")
     private int jwtExpirationMs;
-
-    private SecretKey getSigningKey() {
-        // Убедимся, что ключ достаточно длинный
-        byte[] keyBytes = jwtSecret.getBytes();
-        if (keyBytes.length < 32) {
-            // Дополним ключ до нужной длины
-            byte[] paddedKey = new byte[32];
-            System.arraycopy(keyBytes, 0, paddedKey, 0, Math.min(keyBytes.length, 32));
-            return Keys.hmacShaKeyFor(paddedKey);
-        }
-        return Keys.hmacShaKeyFor(keyBytes);
-    }
 
     public String generateToken(Authentication authentication) {
         String username = authentication.getName();
@@ -64,5 +56,17 @@ public class JwtTokenProvider {
         } catch (JwtException | IllegalArgumentException e) {
             return false;
         }
+    }
+
+    private SecretKey getSigningKey() {
+        // Убедимся, что ключ достаточно длинный
+        byte[] keyBytes = jwtSecret.getBytes();
+        if (keyBytes.length < 32) {
+            // Дополним ключ до нужной длины
+            byte[] paddedKey = new byte[32];
+            System.arraycopy(keyBytes, 0, paddedKey, 0, Math.min(keyBytes.length, 32));
+            return Keys.hmacShaKeyFor(paddedKey);
+        }
+        return Keys.hmacShaKeyFor(keyBytes);
     }
 }
