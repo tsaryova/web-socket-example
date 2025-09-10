@@ -58,22 +58,17 @@
             <version>7.4</version>
         </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>org.codehaus.janino</groupId>-->
-<!--            <artifactId>janino</artifactId>-->
-<!--            <version>3.1.10</version> &lt;!&ndash; Совместим с Logback 1.4.x &ndash;&gt;-->
-<!--        </dependency>-->
 
-<!--        &lt;!&ndash; RabbitMQ Starter Dependency &ndash;&gt;-->
-<!--        <dependency>-->
-<!--            <groupId>org.springframework.boot</groupId>-->
-<!--            <artifactId>spring-boot-starter-amqp</artifactId>-->
-<!--        </dependency>-->
-<!--        &lt;!&ndash; Following additional dependency is required for Full Featured STOMP Broker Relay &ndash;&gt;-->
-<!--        <dependency>-->
-<!--            <groupId>org.springframework.boot</groupId>-->
-<!--            <artifactId>spring-boot-starter-reactor-netty</artifactId>-->
-<!--        </dependency>-->
+        <!-- RabbitMQ Starter Dependency -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-amqp</artifactId>
+        </dependency>
+        <!-- Following additional dependency is required for Full Featured STOMP Broker Relay -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-reactor-netty</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

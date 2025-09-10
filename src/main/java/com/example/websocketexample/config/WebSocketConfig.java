@@ -13,23 +13,25 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws").withSockJS();
     }
-    @Override
-    public void configureMessageBroker(MessageBrokerRegistry registry) {
-        registry.setApplicationDestinationPrefixes("/app");
-        registry.enableSimpleBroker("/topic");
-
-//        registry.enableSimpleBroker("/topic", "/queue"); // "/queue" для приватных сообщений
-//        registry.setApplicationDestinationPrefixes("/app");
-//        registry.setUserDestinationPrefix("/user"); // Важно для @SendToUser
-    }
-
+//    @Override
 //    public void configureMessageBroker(MessageBrokerRegistry registry) {
 //        registry.setApplicationDestinationPrefixes("/app");
-//        // Use this for enabling a Full featured broker like RabbitMQ
-//        registry.enableStompBrokerRelay("/topic")
-//                .setRelayHost("localhost")
-//                .setRelayPort(61613)
-//                .setClientLogin("guest")
-//                .setClientPasscode("guest");
+//        registry.enableSimpleBroker("/topic");
+//
+////        registry.enableSimpleBroker("/topic", "/queue"); // "/queue" для приватных сообщений
+////        registry.setApplicationDestinationPrefixes("/app");
+////        registry.setUserDestinationPrefix("/user"); // Важно для @SendToUser
 //    }
+
+    public void configureMessageBroker(MessageBrokerRegistry registry) {
+        registry.setApplicationDestinationPrefixes("/app");
+        // Use this for enabling a Full featured broker like RabbitMQ
+        registry.enableStompBrokerRelay("/topic", "/queue")
+                .setRelayHost("localhost")
+                .setRelayPort(61613)
+                .setClientLogin("guest")
+                .setClientPasscode("guest")
+                .setSystemLogin("guest")
+                .setSystemPasscode("guest");
+    }
 }
