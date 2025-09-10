@@ -1,6 +1,18 @@
 spring:
   application:
     name: web-socket-example
+  rabbitmq:
+    host: localhost
+    port: 5672
+    stomp-port: 61613
+    username: guest
+    password: guest
+
+stomp:
+  broker:
+    relay:
+      host: localhost
+      port: 61613
 
 logging:
   level:

@@ -1,0 +1,29 @@
+version: '3.8'
+services:
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: rabbitmq-stomp
+    ports:
+      - "5672:5672"    # AMQP
+      - "15672:15672"  # Management UI
+      - "61613:61613"  # STOMP
+      - "61614:61614"  # STOMP over WebSockets
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_SERVER_ADDITIONAL_ERL_ARGS: >
+        -rabbit stomp_listeners [{"0.0.0.0",61613}]
+        -rabbit web_stomp_listeners [{"0.0.0.0",61614}]
+    command: >
+      bash -c "rabbitmq-plugins enable rabbitmq_stomp rabbitmq_web_stomp rabbitmq_management &&
+               rabbitmq-server"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
+volumes:
+  rabbitmq_data:
