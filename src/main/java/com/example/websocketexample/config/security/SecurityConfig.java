@@ -33,6 +33,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authz -> authz
+                        //.requestMatchers("/auth/**", "/ws-endpoint").permitAll()
                         .requestMatchers("/auth/**", "/ws-endpoint").permitAll()
                         .anyRequest().authenticated()
                 )

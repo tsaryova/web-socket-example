@@ -14,15 +14,11 @@ import org.springframework.messaging.simp.stomp.StompFrameHandler;
 import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
 import org.springframework.web.socket.messaging.WebSocketStompClient;
-import org.springframework.web.socket.sockjs.client.SockJsClient;
-import org.springframework.web.socket.sockjs.client.Transport;
-import org.springframework.web.socket.sockjs.client.WebSocketTransport;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
@@ -30,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Import(TestSecurityConfig.class)
+@ActiveProfiles("test")
 class WebSocketIntegrationTest {
 
     @LocalServerPort
@@ -43,13 +40,16 @@ class WebSocketIntegrationTest {
 
     @Test
     void testWebSocketConnection() throws Exception {
-        WebSocketStompClient stompClient = new WebSocketStompClient(new SockJsClient(createTransports()));
+        WebSocketStompClient stompClient = new WebSocketStompClient(new StandardWebSocketClient());
         stompClient.setMessageConverter(new MappingJackson2MessageConverter());
 
         CompletableFuture<ChatMessage> future = new CompletableFuture<>();
 
+        // Подключаемся с токеном аутентификации
+        String token = jwtTokenProvider.generateToken("testUser");
+
         StompSession session = stompClient.connectAsync(
-                "ws://localhost:" + port + "/ws",
+                "ws://localhost:" + port + "/ws?token=" + token,
                 new StompSessionHandlerAdapter() {}
         ).get(5, TimeUnit.SECONDS);
 
@@ -65,6 +65,9 @@ class WebSocketIntegrationTest {
             }
         });
 
+        // Ждем немного перед отправкой сообщения
+        Thread.sleep(1000);
+
         ChatMessage message = new ChatMessage();
         message.setSender("testUser");
         message.setContent("Test message");
@@ -74,11 +77,5 @@ class WebSocketIntegrationTest {
 
         ChatMessage received = future.get(10, TimeUnit.SECONDS);
         assertNotNull(received);
-    }
-
-    private List<Transport> createTransports() {
-        List<Transport> transports = new ArrayList<>();
-        transports.add(new WebSocketTransport(new StandardWebSocketClient()));
-        return transports;
     }
 }
