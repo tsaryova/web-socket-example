@@ -14,10 +14,10 @@ import java.util.Collections;
 import java.util.Map;
 
 @RequiredArgsConstructor
-public class AuthHandshakeInterceptor implements HandshakeInterceptor {
+public class AuthHandshakeInterceptor /*implements HandshakeInterceptor*/ {
     private final JwtTokenProvider tokenProvider;
 
-    @Override
+    //@Override
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
         // Преобразуем запрос в ServletRequest чтобы получить параметры
         ServletServerHttpRequest servletRequest = (ServletServerHttpRequest) request;
@@ -41,7 +41,7 @@ public class AuthHandshakeInterceptor implements HandshakeInterceptor {
         }
     }
 
-    @Override
+    //@Override
     public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, Exception exception) {
 
     }

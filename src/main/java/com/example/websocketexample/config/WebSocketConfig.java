@@ -4,9 +4,17 @@ import com.example.websocketexample.config.security.AuthChannelInterceptor;
 import com.example.websocketexample.config.security.AuthHandshakeInterceptor;
 import com.example.websocketexample.config.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.Message;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
+import org.springframework.messaging.support.ChannelInterceptor;
+import org.springframework.security.authorization.AuthorizationEventPublisher;
+import org.springframework.security.authorization.AuthorizationManager;
+import org.springframework.security.authorization.SpringAuthorizationEventPublisher;
+import org.springframework.security.messaging.access.intercept.AuthorizationChannelInterceptor;
+import org.springframework.security.messaging.context.SecurityContextChannelInterceptor;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
@@ -16,15 +24,26 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     private final JwtTokenProvider jwtTokenProvider;
+    private final AuthChannelInterceptor channelInterceptor;
+//    private final AuthorizationManager<Message<?>> authorizationManager;
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry
                 .addEndpoint("/ws")
                 .setAllowedOriginPatterns("*") //тут указываются домены
-//                .addInterceptors(new AuthHandshakeInterceptor(jwtTokenProvider))
+//                .addInterceptors(handshake)
                 .withSockJS();
     }
+    @Override
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        registration.interceptors(channelInterceptor);
+    }
+
+//    @Bean
+//    public ChannelInterceptor authChannelInterceptor() {
+//        return new AuthChannelInterceptor();
+//    }
 //    @Override
 //    public void configureMessageBroker(MessageBrokerRegistry registry) {
 //        registry.setApplicationDestinationPrefixes("/app");
@@ -33,6 +52,13 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 ////        registry.enableSimpleBroker("/topic", "/queue"); // "/queue" для приватных сообщений
 ////        registry.setApplicationDestinationPrefixes("/app");
 ////        registry.setUserDestinationPrefix("/user"); // Важно для @SendToUser
+//    }
+//    @Override
+//    public void configureClientInboundChannel(ChannelRegistration registration) {
+//        AuthorizationChannelInterceptor authz = new AuthorizationChannelInterceptor(authorizationManager);
+//        AuthorizationEventPublisher publisher = new SpringAuthorizationEventPublisher(applicationContext);
+//        authz.setAuthorizationEventPublisher(publisher);
+//        registration.interceptors(new SecurityContextChannelInterceptor(), authz);
 //    }
 
     public void configureMessageBroker(MessageBrokerRegistry registry) {

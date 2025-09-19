@@ -16,7 +16,7 @@ stomp:
 
 logging:
   level:
-    root: info
+    root: debug
 
 app:
   jwt:
