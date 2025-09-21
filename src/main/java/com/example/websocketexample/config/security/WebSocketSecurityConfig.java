@@ -14,33 +14,35 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @Configuration
 @EnableWebSocketSecurity
 public class WebSocketSecurityConfig extends AbstractSecurityWebSocketMessageBrokerConfigurer {
-//    @Override
-//    protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
-//        messages
-//                // Разрешаем подключение к эндпоинту /ws без аутентификации?
-//                // Обычно подключение аутентифицируется ДО handshake.
-//                .simpDestMatchers("/app/**").authenticated() // Сообщения, отправляемые на сервер по адресам /app/..., требуют аутентификации
-//                .simpSubscribeDestMatchers("/topic/public/**").permitAll() // Подписка на публичные топики разрешена всем
-//                .simpSubscribeDestMatchers("/topic/private/**", "/user/**").authenticated() // Подписка на приватные топики и топики для конкретного пользователя требует аутентификации
-//                .anyMessage().denyAll(); // Блокируем все остальное по умолчанию
-//    }
-//
-    // Отключаем CSRF для WebSocket соединения, т.к. он не применим в рамках протокола WS.
-    // Защита от CSWSH обеспечивается проверкой Origin и аутентификацией во время handshake.
-//    @Override
-//    protected boolean sameOriginDisabled() {
-//        return true;
-//    }
-
-    @Bean
-    AuthorizationManager<Message<?>> messageAuthorizationManager(MessageMatcherDelegatingAuthorizationManager.Builder messages) {
+    @Override
+    protected void configureInbound(MessageSecurityMetadataSourceRegistry messages) {
         messages
-                //.simpDestMatchers("/**").permitAll() // Сообщения, отправляемые на сервер по адресам /app/..., требуют аутентификации
-                //.simpSubscribeDestMatchers("/**").permitAll() // Подписка на публичные топики разрешена всем
+                // Разрешаем подключение к эндпоинту /ws без аутентификации?
+                // Обычно подключение аутентифицируется ДО handshake.
+                .nullDestMatcher().permitAll()
+                //.simpDestMatchers("/app/**").authenticated() // Сообщения, отправляемые на сервер по адресам /app/..., требуют аутентификации
                 //.simpSubscribeDestMatchers("/topic/public/**").permitAll() // Подписка на публичные топики разрешена всем
                 //.simpSubscribeDestMatchers("/topic/private/**", "/user/**").authenticated() // Подписка на приватные топики и топики для конкретного пользователя требует аутентификации
                 .anyMessage().permitAll(); // Блокируем все остальное по умолчанию
-
-        return messages.build();
     }
+//
+    // Отключаем CSRF для WebSocket соединения, т.к. он не применим в рамках протокола WS.
+    // Защита от CSWSH обеспечивается проверкой Origin и аутентификацией во время handshake.
+    @Override
+    protected boolean sameOriginDisabled() {
+        return true;
+    }
+
+//    @Bean
+//    AuthorizationManager<Message<?>> messageAuthorizationManager(MessageMatcherDelegatingAuthorizationManager.Builder messages) {
+//        messages
+//                //.simpDestMatchers("/**").permitAll() // Сообщения, отправляемые на сервер по адресам /app/..., требуют аутентификации
+//                //.simpSubscribeDestMatchers("/**").permitAll() // Подписка на публичные топики разрешена всем
+//                //.simpSubscribeDestMatchers("/topic/public/**").permitAll() // Подписка на публичные топики разрешена всем
+//                //.simpSubscribeDestMatchers("/topic/private/**", "/user/**").authenticated() // Подписка на приватные топики и топики для конкретного пользователя требует аутентификации
+//                .nullDestMatcher().permitAll()
+//                .anyMessage().permitAll(); // Блокируем все остальное по умолчанию
+//
+//        return messages.build();
+//    }
 }
