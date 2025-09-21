@@ -23,7 +23,6 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @RequiredArgsConstructor
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
-    private final JwtTokenProvider jwtTokenProvider;
     private final AuthChannelInterceptor channelInterceptor;
 //    private final AuthorizationManager<Message<?>> authorizationManager;
 
@@ -32,7 +31,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry
                 .addEndpoint("/ws")
                 .setAllowedOriginPatterns("*") //тут указываются домены
-//                .addInterceptors(handshake)
+                .setAllowedOrigins("*")
                 .withSockJS();
     }
     @Override
@@ -40,10 +39,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registration.interceptors(channelInterceptor);
     }
 
-//    @Bean
-//    public ChannelInterceptor authChannelInterceptor() {
-//        return new AuthChannelInterceptor();
-//    }
 //    @Override
 //    public void configureMessageBroker(MessageBrokerRegistry registry) {
 //        registry.setApplicationDestinationPrefixes("/app");
@@ -52,13 +47,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 ////        registry.enableSimpleBroker("/topic", "/queue"); // "/queue" для приватных сообщений
 ////        registry.setApplicationDestinationPrefixes("/app");
 ////        registry.setUserDestinationPrefix("/user"); // Важно для @SendToUser
-//    }
-//    @Override
-//    public void configureClientInboundChannel(ChannelRegistration registration) {
-//        AuthorizationChannelInterceptor authz = new AuthorizationChannelInterceptor(authorizationManager);
-//        AuthorizationEventPublisher publisher = new SpringAuthorizationEventPublisher(applicationContext);
-//        authz.setAuthorizationEventPublisher(publisher);
-//        registration.interceptors(new SecurityContextChannelInterceptor(), authz);
 //    }
 
     public void configureMessageBroker(MessageBrokerRegistry registry) {

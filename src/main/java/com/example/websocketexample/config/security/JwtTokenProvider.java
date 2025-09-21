@@ -1,19 +1,25 @@
 package com.example.websocketexample.config.security;
 
+import com.example.websocketexample.auth.CustomUserDetailsService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
 
 @Component
+@RequiredArgsConstructor
 public class JwtTokenProvider {
 
     @Getter
@@ -56,6 +62,13 @@ public class JwtTokenProvider {
         } catch (JwtException | IllegalArgumentException e) {
             return false;
         }
+    }
+
+    public Authentication getAuthentication(String token, UserDetailsService userDetailsService) {
+        String username = getUsernameFromToken(token);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        return new UsernamePasswordAuthenticationToken(
+                userDetails, null, userDetails.getAuthorities());
     }
 
     private SecretKey getSigningKey() {

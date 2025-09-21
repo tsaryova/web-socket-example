@@ -7,14 +7,16 @@ import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.HandshakeInterceptor;
 
 import java.util.Collections;
 import java.util.Map;
 
+@Component
 @RequiredArgsConstructor
-public class AuthHandshakeInterceptor /*implements HandshakeInterceptor*/ {
+public class AuthHandshakeInterceptor implements HandshakeInterceptor {
     private final JwtTokenProvider tokenProvider;
 
     //@Override

@@ -2,7 +2,3 @@ app:
   jwt:
     secret: 'mySuperSecretKeyThatIsAtLeast256BitsLongForHS256Algorithm'
     expiration-ms: 86400000
-
-spring:
-  main:
-    allow-bean-definition-overriding: true
