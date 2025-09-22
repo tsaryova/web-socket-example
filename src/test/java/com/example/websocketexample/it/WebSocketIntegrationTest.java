@@ -96,13 +96,15 @@ class WebSocketIntegrationTest {
 
         // 4. Теперь пробуем подключиться к WebSocket
         try {
-            WebSocketStompClient stompClient = new WebSocketStompClient(new StandardWebSocketClient());
+            WebSocketStompClient stompClient = new WebSocketStompClient(new SockJsClient(
+                    List.of(new WebSocketTransport(new StandardWebSocketClient()))
+            ));
             stompClient.setMessageConverter(new MappingJackson2MessageConverter());
 
             StompHeaders connectHeaders = new StompHeaders();
             connectHeaders.add("Authorization", "Bearer " + jwtToken);
 
-            String websocketUrl = "ws://localhost:" + port + "/ws";
+            String websocketUrl = "ws://localhost:" + port + "/ws?token=" + jwtToken;
 
             CompletableFuture<StompSession> sessionFuture = stompClient.connectAsync(
                     websocketUrl,
@@ -113,24 +115,29 @@ class WebSocketIntegrationTest {
                         public void handleException(StompSession session, StompCommand command,
                                                     StompHeaders headers, byte[] payload, Throwable exception) {
                             System.out.println("Exception: " + exception.getMessage());
-                            exception.printStackTrace();
                         }
 
                         @Override
                         public void handleTransportError(StompSession session, Throwable exception) {
                             System.out.println("Transport error: " + exception.getMessage());
-                            exception.printStackTrace();
+                        }
+
+                        @Override
+                        public void afterConnected(StompSession session, StompHeaders connectedHeaders) {
+                            System.out.println("Connected! Session ID: " + session.getSessionId());
                         }
                     }
             );
 
             // Ждем подключения
-            StompSession session = sessionFuture.get(10, TimeUnit.SECONDS);
+            StompSession session = sessionFuture.get(30, TimeUnit.SECONDS);
+            assertThat(session).isNotNull();
+            assertThat(session.isConnected()).isTrue();
             System.out.println("Connected successfully! Session ID: " + session.getSessionId());
 
             // Подписываемся на тему
             CountDownLatch latch = new CountDownLatch(1);
-            session.subscribe("/topic/messages", new StompFrameHandler() {
+            session.subscribe("/topic/public", new StompFrameHandler() {
                 @Override
                 public Type getPayloadType(StompHeaders headers) {
                     return String.class;
@@ -144,7 +151,7 @@ class WebSocketIntegrationTest {
             });
 
             // Отправляем тестовое сообщение
-            session.send("/app/chat", "Test message from test");
+            session.send("/chat.sendMessage", "Test message from test");
             System.out.println("Message sent");
 
             // Ждем получения сообщения

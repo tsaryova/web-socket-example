@@ -40,7 +40,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authz -> authz
-                        .requestMatchers("/**").permitAll()
+                        .anyRequest().permitAll()
                 )
 //                .authorizeHttpRequests(authz -> authz
 //                        .requestMatchers("/**", "/auth/**", "/ws-endpoint", "/ws/**").permitAll()

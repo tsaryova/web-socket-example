@@ -27,7 +27,6 @@ public class WebSocketSecurityConfig extends AbstractSecurityWebSocketMessageBro
     }
 //
     // Отключаем CSRF для WebSocket соединения, т.к. он не применим в рамках протокола WS.
-    // Защита от CSWSH обеспечивается проверкой Origin и аутентификацией во время handshake.
     @Override
     protected boolean sameOriginDisabled() {
         return true;

@@ -21,6 +21,9 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketTransportRegistration;
+import org.springframework.web.socket.server.RequestUpgradeStrategy;
+import org.springframework.web.socket.server.standard.TomcatRequestUpgradeStrategy;
+import org.springframework.web.socket.server.support.DefaultHandshakeHandler;
 
 @Configuration
 @RequiredArgsConstructor
@@ -30,9 +33,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
+        RequestUpgradeStrategy upgradeStrategy = new TomcatRequestUpgradeStrategy();
         registry
                 .addEndpoint("/ws")
                 .setAllowedOriginPatterns("*") //тут указываются домены
+                .setHandshakeHandler(new DefaultHandshakeHandler(upgradeStrategy))
                 .withSockJS();
     }
     @Override
@@ -61,11 +66,4 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 //                .setSystemLogin("guest")
 //                .setSystemPasscode("guest");
 //    }
-
-    @Override
-    public void configureWebSocketTransport(WebSocketTransportRegistration registry) {
-        registry.setMessageSizeLimit(8192)
-                .setSendBufferSizeLimit(8192)
-                .setSendTimeLimit(10000);
-    }
 }
