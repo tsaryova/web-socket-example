@@ -12,7 +12,7 @@ import org.springframework.stereotype.Controller;
 @Controller
 public class ChatController {
 
-    @MessageMapping("/chat.sendMessage")
+    @MessageMapping("/sendMessage")
     @SendTo("/topic/public")
     public ChatMessage sendMessage(@Payload ChatMessage chatMessage) {
         log.info("Input Message: {}", chatMessage);
@@ -20,7 +20,7 @@ public class ChatController {
     }
 
     //вход в чат
-    @MessageMapping("/chat.addUser")
+    @MessageMapping("/addUser")
     @SendTo("/topic/public")
     public ChatMessage addUser(@Payload ChatMessage chatMessage, SimpMessageHeaderAccessor headerAccessor) {
         // Add username in web socket session

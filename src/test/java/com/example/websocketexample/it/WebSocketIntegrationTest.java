@@ -2,12 +2,12 @@ package com.example.websocketexample.it;
 
 import com.example.websocketexample.auth.AuthRequest;
 import com.example.websocketexample.config.security.JwtTokenProvider;
+import com.example.websocketexample.model.ChatMessage;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.MediaType;
@@ -16,7 +16,6 @@ import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompFrameHandler;
 import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.simp.stomp.StompSession;
-import org.springframework.messaging.simp.stomp.StompSessionHandler;
 import org.springframework.messaging.simp.stomp.StompSessionHandlerAdapter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -35,7 +34,6 @@ import org.springframework.web.socket.sockjs.client.WebSocketTransport;
 
 import java.lang.reflect.Type;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -53,12 +51,15 @@ class WebSocketIntegrationTest {
 
     private MockMvc mockMvc;
 
+    private ObjectMapper objectMapper;
+
     @Autowired
     private WebApplicationContext webApplicationContext;
 
     @BeforeEach
     void setUp() {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+        objectMapper = new ObjectMapper();
     }
 
     @Autowired
@@ -89,7 +90,7 @@ class WebSocketIntegrationTest {
             StompHeaders connectHeaders = new StompHeaders();
             connectHeaders.add("Authorization", "Bearer " + jwtToken);
 
-            String websocketUrl = "ws://localhost:" + port + "/ws?token=" + jwtToken;
+            String websocketUrl = "ws://localhost:" + port + "/ws";
 
             ListenableFuture<StompSession> sessionFuture = stompClient.connect(
                     websocketUrl,
@@ -115,7 +116,7 @@ class WebSocketIntegrationTest {
             );
 
             // Ждем подключения
-            StompSession session = sessionFuture.get(30, TimeUnit.SECONDS);
+            StompSession session = sessionFuture.get(20, TimeUnit.SECONDS);
             assertThat(session).isNotNull();
             assertThat(session.isConnected()).isTrue();
             System.out.println("Connected successfully! Session ID: " + session.getSessionId());
@@ -125,18 +126,23 @@ class WebSocketIntegrationTest {
             session.subscribe("/topic/public", new StompFrameHandler() {
                 @Override
                 public Type getPayloadType(StompHeaders headers) {
-                    return String.class;
+                    return ChatMessage.class;
                 }
 
                 @Override
                 public void handleFrame(StompHeaders headers, Object payload) {
-                    System.out.println("Received message: " + payload);
+                    ChatMessage message = (ChatMessage) payload;
+                    System.out.println("Received message: " + message.getContent());
                     latch.countDown();
                 }
             });
-
+            ChatMessage message = ChatMessage.builder()
+                    .sender(auth.getName())
+                    .content("Angelina test message")
+                    .type(ChatMessage.MessageType.CHAT)
+                    .build();
             // Отправляем тестовое сообщение
-            session.send("/chat.sendMessage", "Test message from test");
+            session.send("/app/sendMessage", message);
             System.out.println("Message sent");
 
             // Ждем получения сообщения
@@ -173,6 +179,4 @@ class WebSocketIntegrationTest {
         JsonNode jsonNode = mapper.readTree(response);
         return jsonNode.get("token").asText();
     }
-
-
 }

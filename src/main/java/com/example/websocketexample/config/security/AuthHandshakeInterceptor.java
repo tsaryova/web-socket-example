@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Collections;
 import java.util.Map;
 
-@Component
+//@Component
 @RequiredArgsConstructor
 public class AuthHandshakeInterceptor implements HandshakeInterceptor {
     private final JwtTokenProvider tokenProvider;

@@ -1,6 +1,7 @@
 package com.example.websocketexample.config;
 
 import com.example.websocketexample.config.security.AuthChannelInterceptor;
+import com.example.websocketexample.config.security.AuthHandshakeInterceptor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,6 +25,7 @@ import org.springframework.web.socket.server.support.DefaultHandshakeHandler;
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     private final AuthChannelInterceptor channelInterceptor;
+    private final LoggingChannelInterceptor loggingChannelInterceptor;
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
@@ -42,6 +44,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 //        registry.enableSimpleBroker("/topic", "/queue"); // "/queue" для приватных сообщений
 //        registry.setApplicationDestinationPrefixes("/app");
 //        registry.setUserDestinationPrefix("/user"); // Важно для @SendToUser
+    }
+
+    @Override
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        registration.interceptors(channelInterceptor, loggingChannelInterceptor);
     }
 
 //    public void configureMessageBroker(MessageBrokerRegistry registry) {
