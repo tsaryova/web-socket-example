@@ -34,23 +34,6 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 .setHandshakeHandler(new DefaultHandshakeHandler(upgradeStrategy))
                 .withSockJS();
     }
-
-    @Override
-    public void configureClientInboundChannel(ChannelRegistration registration) {
-        registration.interceptors(noopCsrfChannelInterceptor(), channelInterceptor);
-    }
-
-    @Order(Ordered.HIGHEST_PRECEDENCE)
-    @Bean("csrfChannelInterceptor")
-    public ChannelInterceptor noopCsrfChannelInterceptor() {
-        return new ChannelInterceptor() {
-            @Override
-            public Message<?> preSend(Message<?> message, MessageChannel channel) {
-                return message;
-            }
-        };
-    }
-
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         registry.setApplicationDestinationPrefixes("/app");
