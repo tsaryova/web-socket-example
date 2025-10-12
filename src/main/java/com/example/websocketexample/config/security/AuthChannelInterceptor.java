@@ -7,7 +7,6 @@ import org.springframework.messaging.simp.stomp.StompCommand;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.messaging.support.MessageHeaderAccessor;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
@@ -27,7 +26,6 @@ public class AuthChannelInterceptor implements ChannelInterceptor {
         StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
 
         if (accessor != null && accessor.getCommand() != null) {
-
             // ОБРАБОТКА CONNECT - ИЗВЛЕКАЕМ JWT И СОЗДАЕМ АУТЕНТИФИКАЦИЮ
             if (StompCommand.CONNECT.equals(accessor.getCommand())) {
                 String token = extractJwtToken(accessor);
@@ -63,12 +61,6 @@ public class AuthChannelInterceptor implements ChannelInterceptor {
         String authHeader = accessor.getFirstNativeHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             return authHeader.substring(7);
-        }
-
-        // Пробуем получить из кастомного заголовка
-        String tokenHeader = accessor.getFirstNativeHeader("token");
-        if (tokenHeader != null) {
-            return tokenHeader;
         }
 
         return null;

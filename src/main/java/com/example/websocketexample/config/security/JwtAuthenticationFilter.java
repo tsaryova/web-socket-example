@@ -17,17 +17,11 @@ import java.util.Collections;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider;
-;
+    ;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
         try {
-            // Пропускаем аутентификацию для публичных endpoint-ов
-            String path = request.getRequestURI();
-            if (path.startsWith("/auth/") || path.equals("/ws-endpoint")) {
-                filterChain.doFilter(request, response);
-                return;
-            }
-
             String jwt = getJwtFromRequest(request);
 
             if (StringUtils.hasText(jwt) && jwtTokenProvider.validateToken(jwt)) {
@@ -35,7 +29,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(username, null,
-                                Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER")));
+                                Collections.singletonList(new SimpleGrantedAuthority(getUserRole(username))));
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
@@ -46,25 +40,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private boolean isWebSocketRequest(HttpServletRequest request) {
-        String upgradeHeader = request.getHeader("Upgrade");
-        return upgradeHeader != null && upgradeHeader.equalsIgnoreCase("websocket") ||
-                request.getRequestURI().contains("/ws");
-    }
-
     private String getJwtFromRequest(HttpServletRequest request) {
-        // Также проверяем параметр запроса (для WebSocket handshake)
-        String tokenParam = request.getParameter("token");
-        if (StringUtils.hasText(tokenParam)) {
-            return tokenParam;
-        }
-
         String bearerToken = request.getHeader("Authorization");
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
         }
 
         return null;
+    }
+
+    //заглушка для ролей
+    private String getUserRole(String userName) {
+        String userRole = "ROLE_USER";
+        if ("angelina".equals(userName)) {
+            userRole = "ROLE_DEVELOPER";
+        }
+        return userRole;
     }
 
 }

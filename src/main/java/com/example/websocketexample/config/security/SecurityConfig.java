@@ -25,27 +25,22 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 )
 public class SecurityConfig {
     private final JwtTokenProvider jwtTokenProvider;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                // Отключаем CSRF и сессию, т.к. используем stateless JWT
                 .csrf().disable()
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeRequests(authz -> authz
-                        .anyRequest().permitAll()
-//                        .antMatchers("/auth/**", "/ws-endpoint").permitAll()
-                        //.anyRequest().authenticated()
+                        .antMatchers("/auth/**", "/ws-endpoint", "/ws/**").permitAll()
+                        .anyRequest().authenticated()
                 )
-//                .authorizeHttpRequests(authz -> authz
-//                        .requestMatchers("/**", "/auth/**", "/ws-endpoint", "/ws/**").permitAll()
-//                        .anyRequest().authenticated()
-//                )
-                // Добавляем фильтр для проверки JWT
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
+
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http, CustomUserDetailsService userDetailsService) throws Exception {
         AuthenticationManagerBuilder authenticationManagerBuilder =
@@ -55,19 +50,6 @@ public class SecurityConfig {
                 .passwordEncoder(passwordEncoder());
         return authenticationManagerBuilder.build();
     }
-
-//    @Bean
-//    public CorsConfigurationSource corsConfigurationSource() {
-//        CorsConfiguration configuration = new CorsConfiguration();
-//        configuration.setAllowedOriginPatterns(List.of("*"));
-//        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-//        configuration.setAllowedHeaders(List.of("*"));
-//        configuration.setAllowCredentials(true);
-//
-//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-//        source.registerCorsConfiguration("/**", configuration);
-//        return source;
-//    }
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() {

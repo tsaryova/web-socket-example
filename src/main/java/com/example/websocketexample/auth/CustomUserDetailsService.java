@@ -17,9 +17,15 @@ public class CustomUserDetailsService implements UserDetailsService {
         // Для демонстрации создаем пользователя в памяти
         if ("user".equals(username)) {
             return User.builder()
-                    .username("user")
+                    .username(username)
                     .password(passwordEncoder.encode("password"))
                     .roles("USER")
+                    .build();
+        } else if ("angelina".equals(username)) {
+            return User.builder()
+                    .username(username)
+                    .password(passwordEncoder.encode("angelina"))
+                    .roles("DEVELOPER")
                     .build();
         } else {
             throw new UsernameNotFoundException("User not found");
